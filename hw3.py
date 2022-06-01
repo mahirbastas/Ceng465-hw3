@@ -1,57 +1,66 @@
-def amino_acid_pair1(input):
-    pair_1 = []
+class Atom:
+    def __init__(self, name, chain, pos, seq_num):
+        self.name = name
+        self.chain = chain
+        self.pos = pos
+        self.seq_num = seq_num
+
+
+class Position:
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+        
+
+
+def amino_acid(input):
     for line in open(input):
         list = line.split()
-        if (list[0]=='ATOM' and list[4]=='A'):
-            list[6]=float (list[6])
-            list[7]=float (list[7])
-            list[8]=float (list[8])
-            if (list[2]=='CB' or (list[2]=='CA')):
-                pair_1.append(list)
-    return pair_1
+        if (list[0]=='ATOM' and list[2]=='CA'):
+            pos_list = Position(list[6], list[7], list[8])
+            atom_list = Atom(list[3], list[4], pos_list, list[5])
+            lst.append(atom_list)
+    return lst
 
-
-def amino_acid_pair2(input):
-    pair_2 = []
-    for line in open(input):
-        list = line.split()
-        if (list[0]=='ATOM' and list[4]=='B'):
-            list[6]=float (list[6])
-            list[7]=float (list[7])
-            list[8]=float (list[8])
-            if (list[2]=='CB' or (list[2]=='CA')):
-                pair_2.append(list)
-    return pair_2
-
+def print_list(lst):
+    count = 0
+    for i in lst:
+        print("atom list: ", i.name, i.chain, i.pos.x, i.pos.y, i.pos.z, i.seq_num)
+        count+=1
+    return count
 
 def euclidean_dis(arg1, arg2):
-    return ((arg1[6]-arg2[6])**2 + (arg1[7]-arg2[7])**2 + (arg1[8]-arg2[8])**2)**0.5
+    return ((float(arg1.pos.x)-float(arg2.pos.x))**2 + (float(arg1.pos.y)-float(arg2.pos.y))**2 + (float(arg1.pos.z)-float(arg2.pos.z))**2)**0.5
 
 
 def s_condition(arg1, arg2):
-    return (abs(int(arg1[5])) - abs(int(arg2[5])))
+    return (abs(int(arg1.seq_num)) - abs(int(arg2.seq_num)))
 
 
 def printF(list1, list2):
-    print "Chain: " + list1[4] + " --> " + list1[3]+"("+list1[5]+")"+" - "+list2[3]+"("+list2[5]+")"+" : "+ str(euclidean_dis(list1,list2)) +" Angstroms"
+    print("Chain: " + list1.chain + " --> " + list1.name+"("+list1.seq_num+")"+" - "+list2.name+"("+list2.seq_num+")"+" : "+ str(euclidean_dis(list1,list2)) +" Angstroms")
+
+
+def printFormat(inp_name, d, s):
+    print("Output for "+str(inp_name)+" with D="+str(d)+" and S="+str(s)+":")
 
 ################################################################################################
+lst = []
+x = input()
+t = x.split()
+inp = t[0]
+d = float(t[1])
+s = float(t[2])
+pair = amino_acid(inp)
 
-inp = '3r0a.pdb'
-pair1 = amino_acid_pair1(inp)
-pair2 = amino_acid_pair2(inp)
-rec = 0
 
-
-for i in range(0, len(pair1)):
-    for j in range(0, len(pair2)):
-        if (euclidean_dis(pair1[i], pair2[j]) <= 5.0 and pair1[i][1] != pair2[j][1]):
-            if(s_condition(pair1[i], pair2[j]) >= 40):
-                rec+=1
-
-print("There are "+str(rec)+" interacting pairs.")
-for i in range(0, len(pair1)):
-    for j in range(0, len(pair2)):
-        if (euclidean_dis(pair1[i], pair2[j]) <= 5.0 and pair1[i][1] != pair2[j][1]):
-            if(s_condition(pair1[i], pair2[j]) >= 40):
-                printF(pair1[i], pair2[j])
+printed_atom_list = []
+printFormat(inp, d, s)
+for i in lst:
+    for j in lst:
+        if(i != j and i.chain == j.chain):
+            euc_dis = euclidean_dis(i, j)
+            s_dis = s_condition(i, j)
+            if(euc_dis <= d and s_dis >= s):
+                printF(i, j)
